@@ -19,7 +19,7 @@ namespace Training
         [Test]
         public void ValidateSumOfPaidAmounts()
         {
-            decimal sumOfPaidAmounts = 0;
+            decimal sumOfPaidAmounts = new decimal();
             var expectedSum = 3.49;
 
             foreach (var plan in paymentFile.PaymentDetail.ReimbursementEOB.PlanBalanceTable.PlanDetails)
