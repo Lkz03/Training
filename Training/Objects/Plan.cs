@@ -1,4 +1,5 @@
-﻿using Training.Objects.Enums;
+﻿using System;
+using Training.Objects.Enums;
 
 namespace Training.Objects
 {
@@ -45,14 +46,18 @@ namespace Training.Objects
             }
         }
 
-        public Plan(string id, string date, string desc, string amount, string name, PriorTaxYear taxYear)
+        public Plan(string id, string date, string desc, string amount, string name, string taxYear)
         {
             EmployeeIdentifier = Int32.Parse(id);
             ContributionDate = DateOnly.Parse(date.Insert(2, "-").Insert(5, "-"));
             ContributionDescription = desc;
             PlanName = name;
             ContributionAmount = Decimal.Parse(amount);
-            PriorTaxYear = taxYear;
+            PriorTaxYear = (PriorTaxYear)Enum.Parse(typeof(PriorTaxYear), taxYear);
         }
+
+        public List<string> ToList() => this.PriorTaxYear.HasValue ?
+            new List<string>{ EmployeeIdentifier.ToString(), ContributionDate.ToString(), ContributionDescription, ContributionAmount.ToString(), PlanName, PriorTaxYear.ToString() }:
+            new List<string>{ EmployeeIdentifier.ToString(), ContributionDate.ToString(), ContributionDescription, ContributionAmount.ToString(), PlanName, "" };
     }
 }

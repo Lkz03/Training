@@ -1,4 +1,5 @@
 using Training.Helpers;
+using Training.Objects;
 
 namespace Training
 {
@@ -10,9 +11,19 @@ namespace Training
         [Test]
         public void CreateCSVFromXlsTest()
         {
-            CsvHelper.WriteTo(
-                csvPath,
-                ExcelHelper.Deserialize(xlsPath, true));
+            var xls = ExcelHelper.Deserialize(xlsPath);
+            var csv = new CsvFile<string>(xls[0]);
+
+            for (int i = 1; i < xls.Length; i++)
+            {
+                var plan = new Plan(xls[i][0], xls[i][1], xls[i][2], xls[i][3], xls[i][4], xls[i][5]);
+
+                csv.AddRow(
+                    plan.ToList()
+                );
+            }
+
+            csv.SaveAs(csvPath);
 
             Assert.IsTrue(File.Exists(csvPath));
         }
