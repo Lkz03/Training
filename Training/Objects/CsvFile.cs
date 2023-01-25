@@ -20,6 +20,22 @@ namespace Training.Objects
             }
         }
 
+        public bool Contains(T value)
+        {
+            foreach (var row in _table)
+            {
+                foreach (var column in row)
+                {
+                    if (value.Equals(column))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public void AddRow(ICollection<T> row)
         {
             if (row.Count != _header.Length)

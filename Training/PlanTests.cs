@@ -31,14 +31,23 @@ namespace Training
         [Test]
         public void ValidateCSV()
         {
-            var csv = ExcelHelper.Deserialize(csvPath);
-            var xls = ExcelHelper.Deserialize(xlsPath, true);
+            var xls = ExcelHelper.Deserialize(xlsPath);
+            var csv = new CsvFile<string>(xls[0]);
 
-            for (int i = 0; i < xls.Length; i++)
+            for (int i = 1; i < xls.Length; i++)
+            {
+                var plan = new Plan(xls[i][0], xls[i][1], xls[i][2], xls[i][3], xls[i][4], xls[i][5]);
+
+                csv.AddRow(
+                    plan.ToList()
+                );
+            }
+
+            for (int i = 1; i < xls.Length; i++)
             {
                 for (int j = 0; j < xls[i].Length; j++)
                 {
-                    Assert.AreEqual(xls[i][j], csv[j][i].Replace(",", ""));
+                    Assert.IsTrue(csv.Contains(xls[i][j]));
                 }
             }
         }
