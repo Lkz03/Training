@@ -40,7 +40,7 @@ namespace Training.Objects
         {
             if (row.Count != _header.Length)
             {
-                throw new ArgumentException("Given row does not match the format");
+                throw new InvalidDataException("Given row does not match the format");
             }
 
             _table.Add(row.ToList());
