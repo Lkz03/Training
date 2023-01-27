@@ -1,5 +1,4 @@
-using System.Linq;
-using System.Numerics;
+using Training.Constants;
 using Training.Helpers;
 using Training.Objects;
 
@@ -7,22 +6,18 @@ namespace Training
 {
     public class PlanTests
     {
-        private string xlsPath = @"C:\\Users\\AndriusBogda\\Downloads\\ImportFile.xls";
-        private string csvPath = @"C:\\Users\\AndriusBogda\\Downloads\\ExportFile.csv";
-        private string newValues = @"C:\\Users\\AndriusBogda\\Downloads\\ImportFile2.xls";
-
         private Plan[] plans;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            plans = ExcelHelper.DeserializeInTo<Plan>(newValues);
+            plans = ExcelHelper.DeserializeInTo<Plan>(ExcelConstants.ExcelData);
         }
 
         [Test]
         public void CreateCSVFromXlsTest()
         {
-            var xls = ExcelHelper.Deserialize(xlsPath);
+            var xls = ExcelHelper.Deserialize(ExcelConstants.ExcelPlanTemplateFile);
 
             // create csv file with custom header from xls
             var csv = new CsvFile<string>(xls[0]);
@@ -46,26 +41,36 @@ namespace Training
             }
 
             // save csv file
-            csv.SaveAs(csvPath);
+            csv.SaveAs(ExcelConstants.ExcelCsvExportFile);
 
-            Assert.IsTrue(File.Exists(csvPath), "Csv file was not saved");
+            Assert.IsTrue(File.Exists(ExcelConstants.ExcelCsvExportFile), "Csv file was not saved");
         }
 
         [Test]
         public void ValidateCSV()
         {
-            var csvValues = ExcelHelper.DeserializeInTo<Plan>(csvPath, true);
+            var csvValues = ExcelHelper.DeserializeInTo<Plan>(ExcelConstants.ExcelCsvExportFile, true);
 
             foreach (var plan in plans)
             {
-                Assert.IsTrue(csvValues.Where(
-                    x => x.EmployeeIdentifier.Equals(plan.EmployeeIdentifier) &&
-                    x.ContributionDate.Equals(plan.ContributionDate) &&
-                    x.ContributionDescription.Equals(plan.ContributionDescription) &&
-                    x.ContributionAmount.Equals(plan.ContributionAmount) &&
-                    x.PlanName.Equals(plan.PlanName) &&
-                    x.PriorTaxYear.Equals(plan.PriorTaxYear)).Any(),
-                    "Csv file does not contain any custom values");
+                var csvRow = csvValues.Where(x => x.EmployeeIdentifier.Equals(plan.EmployeeIdentifier)).FirstOrDefault();
+
+                Assert.IsNotNull(csvRow,
+                        $"Could not find row with id: {plan.EmployeeIdentifier}");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(csvRow.ContributionDate, Is.EqualTo(plan.ContributionDate),
+                        $"value {plan.ContributionDate} does not matcssssh");
+                    Assert.That(csvRow.ContributionDescription, Is.EqualTo(plan.ContributionDescription),
+                        $"value {plan.ContributionDescription} does not matcssssh");
+                    Assert.That(csvRow.ContributionAmount, Is.EqualTo(plan.ContributionAmount),
+                        $"value {plan.ContributionAmount} does not matcssssh");
+                    Assert.That(csvRow.PlanName, Is.EqualTo(plan.PlanName),
+                        $"value {plan.PlanName} does not matcssssh");
+                    Assert.That(csvRow.PriorTaxYear, Is.EqualTo(plan.PriorTaxYear),
+                        $"value {plan.PriorTaxYear} does not matcssssh");
+                });
             }
         }
     }

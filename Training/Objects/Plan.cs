@@ -7,6 +7,7 @@ namespace Training.Objects
         private const decimal _maxAmount = 999999999.99M;
         private const decimal _minAmount = -999999999.99M;
         private const int _count = 6;
+        private const int _maxAmountChatLength = 13;
 
         private decimal _contributionAmount;
         private PriorTaxYear? _priorTaxYear;
@@ -44,6 +45,10 @@ namespace Training.Objects
                 if (value < 0 && PlanName.ToLower().Contains("hsa"))
                 {
                     throw new ArgumentException("Value may not be negative");
+                }
+                else if (value.ToString().Length > _maxAmountChatLength)
+                {
+                    throw new FormatException($"Character count may not be larger than {_maxAmountChatLength}");
                 }
                 else if (value > _maxAmount || value < _minAmount)
                 {

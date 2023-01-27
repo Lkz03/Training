@@ -8,7 +8,7 @@
         {
             if (values.Count != Count)
             {
-                throw new ArgumentException("Values count does not match this object");
+                throw new InvalidDataException("Values count does not match this object");
             }
         }
     }
