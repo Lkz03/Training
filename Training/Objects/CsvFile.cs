@@ -70,7 +70,11 @@ namespace Training.Objects
                     for (int j = 0; j < _header.Length; j++)
                     {
                         sb.Append(_table[i][j]);
-                        sb.Append(",");
+
+                        if (j < _header.Length - 1)
+                        {
+                            sb.Append(",");
+                        }
                     }
 
                     file.WriteLine(

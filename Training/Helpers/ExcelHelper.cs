@@ -57,5 +57,23 @@ namespace Training.Helpers
 
             return lines;
         }
+
+        public static T[] DeserializeInTo<T>(string path, bool isCsv = false) where T : PlanObject<string>
+        {
+            var objects = ExcelHelper.Deserialize(path, true);
+            T[] list = new T[objects.Length];
+
+            for (int i = 0; i < objects.Length; i++)
+            {
+                if (isCsv)
+                {
+                    objects[i] = objects[i].First().Split(',');
+                }
+
+                list[i] = (T)Activator.CreateInstance(typeof(T), new object[] { objects[i] });
+            }
+
+            return list;
+        }
     }
 }

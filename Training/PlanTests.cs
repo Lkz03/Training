@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Numerics;
 using Training.Helpers;
 using Training.Objects;
 
@@ -7,48 +9,63 @@ namespace Training
     {
         private string xlsPath = @"C:\\Users\\AndriusBogda\\Downloads\\ImportFile.xls";
         private string csvPath = @"C:\\Users\\AndriusBogda\\Downloads\\ExportFile.csv";
+        private string newValues = @"C:\\Users\\AndriusBogda\\Downloads\\ImportFile2.xls";
+
+        private Plan[] plans;
+
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            plans = ExcelHelper.DeserializeInTo<Plan>(newValues);
+        }
 
         [Test]
         public void CreateCSVFromXlsTest()
         {
             var xls = ExcelHelper.Deserialize(xlsPath);
+
+            // create csv file with custom header from xls
             var csv = new CsvFile<string>(xls[0]);
 
+            // add default values from xls
             for (int i = 1; i < xls.Length; i++)
             {
-                var plan = new Plan(xls[i][0], xls[i][1], xls[i][2], xls[i][3], xls[i][4], xls[i][5]);
+                var plan = new Plan(xls[i]);
 
                 csv.AddRow(
                     plan.ToList()
                 );
             }
 
+            // add custom values from another xls
+            foreach (var row in plans)
+            {
+                csv.AddRow(
+                    row.ToList()
+                );
+            }
+
+            // save csv file
             csv.SaveAs(csvPath);
 
-            Assert.IsTrue(File.Exists(csvPath));
+            Assert.IsTrue(File.Exists(csvPath), "Csv file was not saved");
         }
 
         [Test]
         public void ValidateCSV()
         {
-            var xls = ExcelHelper.Deserialize(xlsPath);
-            var csv = new CsvFile<string>(xls[0]);
+            var csvValues = ExcelHelper.DeserializeInTo<Plan>(csvPath, true);
 
-            for (int i = 1; i < xls.Length; i++)
+            foreach (var plan in plans)
             {
-                var plan = new Plan(xls[i][0], xls[i][1], xls[i][2], xls[i][3], xls[i][4], xls[i][5]);
-
-                csv.AddRow(
-                    plan.ToList()
-                );
-            }
-
-            for (int i = 1; i < xls.Length; i++)
-            {
-                for (int j = 0; j < xls[i].Length; j++)
-                {
-                    Assert.IsTrue(csv.Contains(xls[i][j]));
-                }
+                Assert.IsTrue(csvValues.Where(
+                    x => x.EmployeeIdentifier.Equals(plan.EmployeeIdentifier) &&
+                    x.ContributionDate.Equals(plan.ContributionDate) &&
+                    x.ContributionDescription.Equals(plan.ContributionDescription) &&
+                    x.ContributionAmount.Equals(plan.ContributionAmount) &&
+                    x.PlanName.Equals(plan.PlanName) &&
+                    x.PriorTaxYear.Equals(plan.PriorTaxYear)).Any(),
+                    "Csv file does not contain any custom values");
             }
         }
     }
