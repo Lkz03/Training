@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using Training.Constants;
 using Training.Helpers;
 using Training.Objects;
@@ -7,6 +8,7 @@ namespace Training
     public class PlanTests
     {
         private Plan[] plans;
+        private string excelCsvExportFile = ExcelConstants.Assets + @"\\ExportFile.csv";
 
         [OneTimeSetUp]
         public void Setup()
@@ -41,15 +43,15 @@ namespace Training
             }
 
             // save csv file
-            csv.SaveAs(ExcelConstants.ExcelCsvExportFile);
+            csv.SaveAs(excelCsvExportFile);
 
-            Assert.IsTrue(File.Exists(ExcelConstants.ExcelCsvExportFile), "Csv file was not saved");
+            Assert.IsTrue(File.Exists(excelCsvExportFile), "Csv file was not saved");
         }
 
         [Test]
         public void ValidateCSV()
         {
-            var csvValues = ExcelHelper.DeserializeInTo<Plan>(ExcelConstants.ExcelCsvExportFile, true);
+            var csvValues = ExcelHelper.DeserializeInTo<Plan>(excelCsvExportFile, true);
 
             foreach (var plan in plans)
             {
