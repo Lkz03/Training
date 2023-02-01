@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using Training.Constants;
 using Training.Helpers;
 using Training.Objects;
@@ -8,7 +7,6 @@ namespace Training
     public class PlanTests
     {
         private Plan[] plans;
-        private string excelCsvExportFile = ExcelConstants.Assets + @"\\ExportFile.csv";
 
         [OneTimeSetUp]
         public void Setup()
@@ -43,37 +41,32 @@ namespace Training
             }
 
             // save csv file
-            csv.SaveAs(excelCsvExportFile);
+            csv.SaveAs(ExcelConstants.excelCsvExportFile);
 
-            Assert.IsTrue(File.Exists(excelCsvExportFile), "Csv file was not saved");
+            Assert.IsTrue(File.Exists(ExcelConstants.excelCsvExportFile), "Csv file was not saved");
         }
 
-        [Test]
-        public void ValidateCSV()
+        [Test, TestCaseSource(typeof(DataHelper), nameof(DataHelper.GetCsvPlanFile))]
+        public void ValidateCSV(Plan csvRecord)
         {
-            var csvValues = ExcelHelper.DeserializeInTo<Plan>(excelCsvExportFile, true);
+            Plan? csvRow = plans.Where(x => x.EmployeeIdentifier.Equals(csvRecord.EmployeeIdentifier)).FirstOrDefault();
 
-            foreach (var plan in plans)
+            Assert.IsNotNull(csvRow,
+                    $"Could not find row with id: {csvRecord.EmployeeIdentifier}");
+
+            Assert.Multiple(() =>
             {
-                var csvRow = csvValues.Where(x => x.EmployeeIdentifier.Equals(plan.EmployeeIdentifier)).FirstOrDefault();
-
-                Assert.IsNotNull(csvRow,
-                        $"Could not find row with id: {plan.EmployeeIdentifier}");
-
-                Assert.Multiple(() =>
-                {
-                    Assert.That(csvRow.ContributionDate, Is.EqualTo(plan.ContributionDate),
-                        $"value {plan.ContributionDate} does not match");
-                    Assert.That(csvRow.ContributionDescription, Is.EqualTo(plan.ContributionDescription),
-                        $"value {plan.ContributionDescription} does not match");
-                    Assert.That(csvRow.ContributionAmount, Is.EqualTo(plan.ContributionAmount),
-                        $"value {plan.ContributionAmount} does not match");
-                    Assert.That(csvRow.PlanName, Is.EqualTo(plan.PlanName),
-                        $"value {plan.PlanName} does not match");
-                    Assert.That(csvRow.PriorTaxYear, Is.EqualTo(plan.PriorTaxYear),
-                        $"value {plan.PriorTaxYear} does not match");
-                });
-            }
+                Assert.That(csvRecord.ContributionDate, Is.EqualTo(csvRow.ContributionDate),
+                    $"value {csvRow.ContributionDate} does not match");
+                Assert.That(csvRecord.ContributionDescription, Is.EqualTo(csvRow.ContributionDescription),
+                    $"value {csvRow.ContributionDescription} does not match");
+                Assert.That(csvRecord.ContributionAmount, Is.EqualTo(csvRow.ContributionAmount),
+                    $"value {csvRow.ContributionAmount} does not match");
+                Assert.That(csvRecord.PlanName, Is.EqualTo(csvRow.PlanName),
+                    $"value {csvRow.PlanName} does not match");
+                Assert.That(csvRecord.PriorTaxYear, Is.EqualTo(csvRow.PriorTaxYear),
+                    $"value {csvRow.PriorTaxYear} does not match");
+            });
         }
     }
 }
